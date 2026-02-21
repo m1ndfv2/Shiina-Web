@@ -5,6 +5,7 @@ import java.util.ArrayList;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
 import dev.osunolimits.modules.utils.MySQLRoute;
 import dev.osunolimits.modules.utils.ShiinaSupporterBadge;
@@ -56,8 +57,11 @@ public class GetComments extends MySQLRoute {
             Comment comment = new Comment();
             comment.setTime(getCommentsResultSet.getInt("time"));
             comment.setComment(getCommentsResultSet.getString("comment"));
-            UserInfoObject user = shiinaAPIHandler.getGson().fromJson(
-                    App.appCache.get("shiina:user:" + getCommentsResultSet.getInt("userid")), UserInfoObject.class);
+            UserInfoObject user = UserInfoCache.getUserInfo(getCommentsResultSet.getInt("userid"));
+            if (user == null) {
+                continue;
+            }
+
             if (PermissionHelper.hasPrivileges(user.priv, PermissionHelper.Privileges.SUPPORTER)) {
                 user.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                 comment.setSupporter(true);

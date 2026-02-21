@@ -1,125 +1,102 @@
 package dev.osunolimits.modules.utils;
 
 import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 import org.slf4j.LoggerFactory;
-
-import com.google.gson.Gson;
 
 import ch.qos.logback.classic.Logger;
 import dev.osunolimits.common.Database;
 import dev.osunolimits.common.MySQL;
-import dev.osunolimits.main.App;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
 
 public class UserInfoCache {
 
-    private final static Gson gson = new Gson();
-    private final static Logger log = (Logger) LoggerFactory.getLogger("RedisUserInfoCache");
+    private final static Logger log = (Logger) LoggerFactory.getLogger("UserInfoCache");
 
     public static void populateIfNeeded() {
+        // User info is read directly from MySQL, no pre-population is required.
+    }
+
+    public static UserInfoObject getUserInfo(String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return getUserInfo(Integer.parseInt(userId));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public static UserInfoObject getUserInfo(int userId) {
         try (MySQL mysql = Database.getConnection()) {
-            ResultSet usersRs = mysql.Query("SELECT `id`, `name`, `safe_name`, `priv` FROM `users`");
-            List<UserInfoObject> users = new ArrayList<>();
-            while (usersRs.next()) {
-                UserInfoObject user = new UserInfoObject();
-                user.id = usersRs.getInt("id");
-                user.name = usersRs.getString("name");
-                user.safe_name = usersRs.getString("safe_name");
-                user.priv = usersRs.getInt("priv");
-                user.groups = new ArrayList<>();
-                users.add(user);
-            }
-
-            List<Group> groups = new ArrayList<>();
-            ResultSet groupsRs = mysql.Query("SELECT `id`, `name`, `emoji` FROM `sh_groups`");
-
-            while (groupsRs.next()) {
-                Group group = new Group();
-                group.id = groupsRs.getInt("id");
-                group.name = groupsRs.getString("name");
-                group.emoji = groupsRs.getString("emoji");
-                groups.add(group);
-            }
-
-            ResultSet userGroupRs = mysql.Query("SELECT `user_id`, `group_id` FROM `sh_groups_users`");
-
-            while (userGroupRs.next()) {
-                int userId = userGroupRs.getInt("user_id");
-                int groupId = userGroupRs.getInt("group_id");
-
-                for (UserInfoObject user : users) {
-                    if (user.id == userId) {
-                        for (Group group : groups) {
-                            if (group.id == groupId) {
-                                user.groups.add(group);
-                            }
-                        }
-                    }
-                }
-            }
-
-            for (UserInfoObject user : users) {
-                if (App.appCache.get("shiina:user:" + user.id) == null) {
-                    App.appCache.set("shiina:user:" + user.id, gson.toJson(user));
-                }
-            }
-        } catch (SQLException e) {
+            return getUserInfo(mysql, userId);
+        } catch (Exception e) {
             log.error("SQL Error: ", e);
+            return null;
+        }
+    }
+
+    public static UserInfoObject getUserInfo(MySQL mysql, String userId) {
+        if (userId == null || userId.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return getUserInfo(mysql, Integer.parseInt(userId));
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+
+    public static UserInfoObject getUserInfo(MySQL mysql, int userId) {
+        try {
+            ResultSet rs = mysql.Query(
+                    "SELECT u.`id`, u.`name`, u.`safe_name`, u.`priv`, g.`id` AS `group_id`, g.`name` AS `group_name`, g.`emoji` AS `group_emoji` " +
+                            "FROM `users` u " +
+                            "LEFT JOIN `sh_groups_users` gu ON gu.`user_id` = u.`id` " +
+                            "LEFT JOIN `sh_groups` g ON g.`id` = gu.`group_id` " +
+                            "WHERE u.`id` = ?",
+                    userId);
+
+            if (rs == null || !rs.next()) {
+                return null;
+            }
+
+            UserInfoObject user = new UserInfoObject();
+            user.id = rs.getInt("id");
+            user.name = rs.getString("name");
+            user.safe_name = rs.getString("safe_name");
+            user.priv = rs.getInt("priv");
+            user.groups = new ArrayList<>();
+
+            do {
+                int groupId = rs.getInt("group_id");
+                if (!rs.wasNull()) {
+                    Group group = new Group();
+                    group.id = groupId;
+                    group.name = rs.getString("group_name");
+                    group.emoji = rs.getString("group_emoji");
+                    user.groups.add(group);
+                }
+            } while (rs.next());
+
+            return user;
+        } catch (Exception e) {
+            log.error("SQL Error: ", e);
+            return null;
         }
     }
 
     public static void reloadUser(int userId) {
-        try (MySQL mysql = Database.getConnection()) {
-            ResultSet userRs = mysql.Query("SELECT `id`, `name`, `safe_name`, `priv` FROM `users` WHERE `id` = ?", userId);
-            if (userRs.next()) {
-                UserInfoObject user = new UserInfoObject();
-                user.id = userRs.getInt("id");
-                user.name = userRs.getString("name");
-                user.safe_name = userRs.getString("safe_name");
-                user.priv = userRs.getInt("priv");
-                user.groups = new ArrayList<>();
-    
-                ResultSet userGroupRs = mysql.Query("SELECT `group_id` FROM `sh_groups_users` WHERE `user_id` = ?", userId);
-                while (userGroupRs.next()) {
-                    int groupId = userGroupRs.getInt("group_id");
-                    ResultSet groupRs = mysql.Query("SELECT `id`, `name`, `emoji` FROM `sh_groups` WHERE `id` = ?",
-                            groupId);
-                    if (groupRs.next()) {
-                        Group group = new Group();
-                        group.id = groupRs.getInt("id");
-                        group.name = groupRs.getString("name");
-                        group.emoji = groupRs.getString("emoji");
-                        user.groups.add(group);
-                    }
-                }
-
-                if (user.id == 0) {
-                    log.error("User ID is 0, skipping reload");
-                    return;
-                }
-    
-                App.appCache.del("shiina:user:" + user.id);
-                App.appCache.set("shiina:user:" + user.id, gson.toJson(user));
-                
-            }else {
-                log.error("User not found in database: " + userId);
-            }
-
-
-        } catch (SQLException e) {
-            log.error("SQL Error: ", e);
-        }
+        // No cache to reload: method intentionally left for backward compatibility.
     }
 
     public static void reloadUserIfNotPresent(int userId) {
-        if (App.appCache.get("shiina:user:" + userId) == null) {
-            reloadUser(userId);
-        }
+        // No cache fallback is required anymore.
     }
 
 }

@@ -2,21 +2,19 @@ package dev.osunolimits.models;
 
 import java.util.List;
 
-import com.google.gson.Gson;
-
-import dev.osunolimits.main.App;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import lombok.Data;
 
 @Data
 public class UserInfoObject {
-    private final static Gson gson = new Gson();
-
     public UserInfoObject() {
     }
 
     public UserInfoObject(int id) {
-        UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + id),
-                UserInfoObject.class);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(id);
+        if (userInfo == null) {
+            return;
+        }
         this.id = userInfo.id;
         this.name = userInfo.name;
         this.safe_name = userInfo.safe_name;
