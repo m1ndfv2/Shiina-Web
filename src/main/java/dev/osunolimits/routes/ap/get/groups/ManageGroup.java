@@ -8,8 +8,6 @@ import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.Action;
-import dev.osunolimits.models.UserInfoObject;
-import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -65,23 +63,6 @@ public class ManageGroup extends Shiina {
             shiina.mysql.Exec("DELETE FROM `sh_groups` WHERE `id` = ?", id);
             shiina.mysql.Exec("DELETE FROM `sh_groups_users` WHERE `group_id` = ?", id);
             ArrayList<Group> groups = new GroupRegistry().getCurrentGroupRegistry();
-
-            for(Group g : groups) {
-                if(g.id == Integer.parseInt(req.queryParams("id"))) {
-                    for (Integer uid : g.getUserIds()) {
-                        App.log.debug("Try Removing group from user: " + uid + " group: " + id);
-                        UserInfoObject userInfo = UserInfoCache.getUserInfo(uid);
-                        for(int i = 0; i < userInfo.groups.size(); i++) {
-                            if(userInfo.groups.get(i).id == Integer.parseInt(id)) {
-                                userInfo.groups.remove(i);
-                                App.log.debug("Removed group from user: " + uid + " group: " + id);
-                            }
-                        }
-                        App.appCache.set("shiina:user:" + uid, gson.toJson(userInfo));
-                    }
-                   
-                }
-            }
 
             for(int i = 0; i < groups.size(); i++) {
                 if(groups.get(i).id == Integer.parseInt(id)) {

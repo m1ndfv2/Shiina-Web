@@ -64,7 +64,10 @@ public class ManageClan extends Shiina {
         clan.owner = clanRS.getInt("owner");
         clan.createdAt = clanRS.getString("created_at");
 
-        UserInfoObject userInfo = UserInfoCache.getUserInfo(clan.owner);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(shiina.mysql, clan.owner);
+        if (userInfo == null) {
+            return notFound(res, shiina);
+        }
         clan.ownerName = userInfo.name;
         shiina.data.put("clan", clan);
 
@@ -82,8 +85,10 @@ public class ManageClan extends Shiina {
         List<UserInfoObject> pendingMembers = new ArrayList<>();
         ResultSet clanPendingRS = shiina.mysql.Query(clanPendingQuery, clanId);
         while(clanPendingRS.next()) {
-            UserInfoObject pending = UserInfoCache.getUserInfo(clanPendingRS.getInt("userid"));
-            pendingMembers.add(pending);
+            UserInfoObject pending = UserInfoCache.getUserInfo(shiina.mysql, clanPendingRS.getInt("userid"));
+            if (pending != null) {
+                pendingMembers.add(pending);
+            }
         }
 
         shiina.data.put("pending", pendingMembers);
@@ -91,8 +96,10 @@ public class ManageClan extends Shiina {
         List<UserInfoObject> deniedMembers = new ArrayList<>();
         ResultSet clanDeniedRS = shiina.mysql.Query(clanDeniedQuery, clanId);
         while(clanDeniedRS.next()) {
-            UserInfoObject denied = UserInfoCache.getUserInfo(clanDeniedRS.getInt("userid"));
-            deniedMembers.add(denied);
+            UserInfoObject denied = UserInfoCache.getUserInfo(shiina.mysql, clanDeniedRS.getInt("userid"));
+            if (denied != null) {
+                deniedMembers.add(denied);
+            }
         }
 
         shiina.data.put("denied", deniedMembers);

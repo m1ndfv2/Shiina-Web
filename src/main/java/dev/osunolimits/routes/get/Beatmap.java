@@ -222,6 +222,9 @@ public class Beatmap extends Shiina {
             score.setName(scoreQuery.getString("name"));
             score.setCountry(scoreQuery.getString("country"));
             UserInfoObject userInfo = UserInfoCache.getUserInfo(score.getUserId());
+            if (userInfo == null) {
+                continue;
+            }
 
             if(PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
                 userInfo.groups.add(ShiinaSupporterBadge.getInstance().getGroup());

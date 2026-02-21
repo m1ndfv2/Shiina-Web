@@ -111,7 +111,10 @@ public class User extends Shiina {
 
         }
 
-        UserInfoObject userInfo = UserInfoCache.getUserInfo(id);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(shiina.mysql, id);
+        if (userInfo == null) {
+            return notFound(res, shiina);
+        }
 
         UserStatusQuery userStatusQuery = new UserStatusQuery();
         UserStatus userStatus = userStatusQuery.getUserStatus(id);

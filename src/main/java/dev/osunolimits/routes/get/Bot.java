@@ -18,6 +18,9 @@ public class Bot extends Shiina {
         shiina.data.put("actNav", 0);
 
         UserInfoObject userInfo = UserInfoCache.getUserInfo(1);
+        if (userInfo == null) {
+            return notFound(res, shiina);
+        }
 
         shiina.data.put("u", userInfo);
         SEOBuilder seo = new SEOBuilder("Profile of " + userInfo.getName(), App.customization.get("homeDescription").toString(), App.env.get("AVATARSRV") + "/" + "1");

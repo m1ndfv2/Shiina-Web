@@ -10,6 +10,7 @@ import dev.osunolimits.common.MySQL;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.utils.ThemeLoader;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.User;
 import dev.osunolimits.utils.osu.PermissionHelper;
@@ -37,8 +38,18 @@ public class ShiinaRoute {
 
             if (user != null) {
                 Auth.User referenceUser = new User();
-                String userInfoJson = App.appCache.get("shiina:user:" + user.id);
-                UserInfoObject infoObject = gson.fromJson(userInfoJson, UserInfoObject.class);
+                UserInfoObject infoObject = UserInfoCache.getUserInfo(user.id);
+                if (infoObject == null) {
+                    request.data.put("currentTheme", ThemeLoader.currentTheme);
+                    request.data.put("assetsUrl", App.env.get("ASSETSURL"));
+                    request.data.put("apiUrlPub", App.env.get("APIURLPUBLIC"));
+                    request.data.put("apiUrl", App.env.get("APIURL"));
+                    request.data.put("c", App.customization);
+                    request.data.put("turnstilePublic", App.env.get("TURNSTILE_KEY"));
+                    request.data.put("avatarServer", App.env.get("AVATARSRV"));
+                    request.data.put("loggedIn", request.loggedIn);
+                    return request;
+                }
                 referenceUser.id = user.id;
                 referenceUser.name = infoObject.name;
                 referenceUser.priv = infoObject.priv;

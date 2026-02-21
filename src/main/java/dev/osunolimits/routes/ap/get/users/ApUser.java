@@ -133,7 +133,7 @@ public class ApUser extends Shiina {
         }
         shiina.data.put("detections", detections);
 
-        UserInfoObject userInfo = UserInfoCache.getUserInfo(userId);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(shiina.mysql, userId);
         if(userInfo == null) {
             return redirect(res, shiina, "/ap/users");
         }

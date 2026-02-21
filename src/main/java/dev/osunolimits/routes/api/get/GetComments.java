@@ -58,6 +58,10 @@ public class GetComments extends MySQLRoute {
             comment.setTime(getCommentsResultSet.getInt("time"));
             comment.setComment(getCommentsResultSet.getString("comment"));
             UserInfoObject user = UserInfoCache.getUserInfo(getCommentsResultSet.getInt("userid"));
+            if (user == null) {
+                continue;
+            }
+
             if (PermissionHelper.hasPrivileges(user.priv, PermissionHelper.Privileges.SUPPORTER)) {
                 user.groups.add(ShiinaSupporterBadge.getInstance().getGroup());
                 comment.setSupporter(true);

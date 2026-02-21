@@ -85,7 +85,10 @@ public class Users extends Shiina {
             }
             ApUser user = new ApUser();
             user.id = userResult.getInt("id");
-            UserInfoObject userInfo = UserInfoCache.getUserInfo(user.id);
+            UserInfoObject userInfo = UserInfoCache.getUserInfo(shiina.mysql, user.id);
+            if (userInfo == null) {
+                continue;
+            }
             user.name = userInfo.name;
             user.priv = Privileges.fromInt(userInfo.priv);
             user.groups = userInfo.getGroups();
