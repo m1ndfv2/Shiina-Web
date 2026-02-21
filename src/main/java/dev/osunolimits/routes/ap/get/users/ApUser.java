@@ -11,6 +11,7 @@ import dev.osunolimits.main.App;
 import dev.osunolimits.models.AuditLogEntry;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.XmlConfig;
@@ -132,7 +133,7 @@ public class ApUser extends Shiina {
         }
         shiina.data.put("detections", detections);
 
-        UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + userId), UserInfoObject.class);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(userId);
         if(userInfo == null) {
             return redirect(res, shiina, "/ap/users");
         }

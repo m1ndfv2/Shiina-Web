@@ -4,11 +4,10 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.google.gson.Gson;
 import com.google.gson.annotations.SerializedName;
 
-import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -65,7 +64,7 @@ public class ManageClan extends Shiina {
         clan.owner = clanRS.getInt("owner");
         clan.createdAt = clanRS.getString("created_at");
 
-        UserInfoObject userInfo = new Gson().fromJson(App.appCache.get("shiina:user:" + clan.owner), UserInfoObject.class);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(clan.owner);
         clan.ownerName = userInfo.name;
         shiina.data.put("clan", clan);
 
@@ -82,9 +81,8 @@ public class ManageClan extends Shiina {
 
         List<UserInfoObject> pendingMembers = new ArrayList<>();
         ResultSet clanPendingRS = shiina.mysql.Query(clanPendingQuery, clanId);
-        Gson gson = new Gson();
         while(clanPendingRS.next()) {
-            UserInfoObject pending = gson.fromJson(App.appCache.get("shiina:user:" + clanPendingRS.getInt("userid")), UserInfoObject.class);
+            UserInfoObject pending = UserInfoCache.getUserInfo(clanPendingRS.getInt("userid"));
             pendingMembers.add(pending);
         }
 
@@ -93,7 +91,7 @@ public class ManageClan extends Shiina {
         List<UserInfoObject> deniedMembers = new ArrayList<>();
         ResultSet clanDeniedRS = shiina.mysql.Query(clanDeniedQuery, clanId);
         while(clanDeniedRS.next()) {
-            UserInfoObject denied = gson.fromJson(App.appCache.get("shiina:user:" + clanDeniedRS.getInt("userid")), UserInfoObject.class);
+            UserInfoObject denied = UserInfoCache.getUserInfo(clanDeniedRS.getInt("userid"));
             deniedMembers.add(denied);
         }
 

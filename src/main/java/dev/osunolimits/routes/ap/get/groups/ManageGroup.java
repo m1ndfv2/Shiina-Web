@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.Action;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -69,7 +70,7 @@ public class ManageGroup extends Shiina {
                 if(g.id == Integer.parseInt(req.queryParams("id"))) {
                     for (Integer uid : g.getUserIds()) {
                         App.log.debug("Try Removing group from user: " + uid + " group: " + id);
-                        UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + uid), UserInfoObject.class);
+                        UserInfoObject userInfo = UserInfoCache.getUserInfo(uid);
                         for(int i = 0; i < userInfo.groups.size(); i++) {
                             if(userInfo.groups.get(i).id == Integer.parseInt(id)) {
                                 userInfo.groups.remove(i);

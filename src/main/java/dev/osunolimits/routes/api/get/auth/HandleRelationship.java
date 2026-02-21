@@ -3,6 +3,7 @@ package dev.osunolimits.routes.api.get.auth;
 import java.sql.ResultSet;
 
 import dev.osunolimits.main.App;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -30,7 +31,7 @@ public class HandleRelationship extends Shiina {
             user2 = Integer.parseInt(req.queryParams("u"));
         }
 
-        if(App.appCache.get("shiina:user:" + user2) == null) {
+        if(UserInfoCache.getUserInfo(user2) == null) {
             return raw(res, shiina, "invalid user");
         }
         
