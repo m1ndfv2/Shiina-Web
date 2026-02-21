@@ -85,7 +85,7 @@ public class UserInfoCache {
             } while (rs.next());
 
             return user;
-        } catch (SQLException e) {
+        } catch (Exception e) {
             log.error("SQL Error: ", e);
             return null;
         }
