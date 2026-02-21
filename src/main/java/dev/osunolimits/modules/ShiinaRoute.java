@@ -1,6 +1,7 @@
 package dev.osunolimits.modules;
 
 import java.util.HashMap;
+import java.sql.ResultSet;
 
 import com.google.gson.Gson;
 
@@ -9,7 +10,6 @@ import dev.osunolimits.common.MySQL;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
 import dev.osunolimits.modules.utils.ThemeLoader;
-import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.utils.Auth;
 import dev.osunolimits.utils.Auth.User;
 import dev.osunolimits.utils.osu.PermissionHelper;
@@ -37,18 +37,8 @@ public class ShiinaRoute {
 
             if (user != null) {
                 Auth.User referenceUser = new User();
-                UserInfoObject infoObject = UserInfoCache.getUserInfo(user.id);
-                if (infoObject == null) {
-                    request.data.put("currentTheme", ThemeLoader.currentTheme);
-                    request.data.put("assetsUrl", App.env.get("ASSETSURL"));
-                    request.data.put("apiUrlPub", App.env.get("APIURLPUBLIC"));
-                    request.data.put("apiUrl", App.env.get("APIURL"));
-                    request.data.put("c", App.customization);
-                    request.data.put("turnstilePublic", App.env.get("TURNSTILE_KEY"));
-                    request.data.put("avatarServer", App.env.get("AVATARSRV"));
-                    request.data.put("loggedIn", request.loggedIn);
-                    return request;
-                }
+                String userInfoJson = App.appCache.get("shiina:user:" + user.id);
+                UserInfoObject infoObject = gson.fromJson(userInfoJson, UserInfoObject.class);
                 referenceUser.id = user.id;
                 referenceUser.name = infoObject.name;
                 referenceUser.priv = infoObject.priv;
@@ -58,6 +48,26 @@ public class ShiinaRoute {
                 request.user = referenceUser;
                 request.data.put("user", referenceUser);
                 request.data.put("userPriv", PermissionHelper.Privileges.fromInt(referenceUser.priv));
+                ResultSet userRs = request.mysql.Query(
+                    "SELECT `id`, `name`, `safe_name`, `priv` FROM `users` WHERE `id` = ?",
+                    user.id
+                );
+
+                if (userRs != null && userRs.next()) {
+                    referenceUser.id = userRs.getInt("id");
+                    referenceUser.name = userRs.getString("name");
+                    referenceUser.priv = userRs.getInt("priv");
+                    referenceUser.safe_name = userRs.getString("safe_name");
+                } else {
+                    referenceUser = null;
+                }
+
+                if (referenceUser != null) {
+                    request.loggedIn = true;
+                    request.user = referenceUser;
+                    request.data.put("user", referenceUser);
+                    request.data.put("userPriv", PermissionHelper.Privileges.fromInt(referenceUser.priv));
+                }
             }
         }
         request.data.put("currentTheme", ThemeLoader.currentTheme);
