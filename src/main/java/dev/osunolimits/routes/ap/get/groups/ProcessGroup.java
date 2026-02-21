@@ -7,8 +7,7 @@ import java.util.ArrayList;
 import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
-import dev.osunolimits.models.Group;
-import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -55,8 +54,7 @@ public class ProcessGroup extends Shiina {
             return notFound(res, shiina);
         }
 
-        UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + id), UserInfoObject.class);
-        if(userInfo == null) {
+        if(UserInfoCache.getUserInfo(shiina.mysql, id) == null) {
             return notFound(res, shiina);
         }
 
@@ -65,12 +63,6 @@ public class ProcessGroup extends Shiina {
             if(!groupResult.next()) {
                 return notFound(res, shiina);
             }
-            Group g = new Group();
-            g.id = groupResult.getInt("id");
-            g.name = groupResult.getString("name");
-            g.emoji = groupResult.getString("emoji");
-            userInfo.groups.add(g);
-            App.appCache.set("shiina:user:" + id, gson.toJson(userInfo));
             GroupRegistry groupRegistry = new GroupRegistry();
             ArrayList<dev.osunolimits.modules.utils.GroupRegistry.Group> groups = groupRegistry.getCurrentGroupRegistry();
             boolean foundMatch = false;
@@ -93,15 +85,6 @@ public class ProcessGroup extends Shiina {
 
             shiina.mysql.Exec("INSERT INTO `sh_groups_users` (`user_id`, `group_id`) VALUES (?, ?);", id, groupId);
         }else if(action.equals("remove")) {
-
-            for (Group g : userInfo.groups) {
-                if(g.id == Integer.parseInt(groupId)) {
-                    userInfo.groups.remove(g);
-                    break;
-                }
-                
-            }
-            App.appCache.set("shiina:user:" + id, gson.toJson(userInfo));
 
             GroupRegistry groupRegistry = new GroupRegistry();
             ArrayList<dev.osunolimits.modules.utils.GroupRegistry.Group> groups = groupRegistry.getCurrentGroupRegistry();

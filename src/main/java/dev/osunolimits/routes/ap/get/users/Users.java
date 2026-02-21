@@ -10,6 +10,7 @@ import com.google.gson.Gson;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -84,7 +85,10 @@ public class Users extends Shiina {
             }
             ApUser user = new ApUser();
             user.id = userResult.getInt("id");
-            UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + user.id), UserInfoObject.class);
+            UserInfoObject userInfo = UserInfoCache.getUserInfo(shiina.mysql, user.id);
+            if (userInfo == null) {
+                continue;
+            }
             user.name = userInfo.name;
             user.priv = Privileges.fromInt(userInfo.priv);
             user.groups = userInfo.getGroups();
