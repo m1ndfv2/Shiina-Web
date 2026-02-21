@@ -15,6 +15,7 @@ import dev.osunolimits.models.FullUser;
 import dev.osunolimits.models.FullUser.Player;
 import dev.osunolimits.models.Group;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.models.UserStatus;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
@@ -110,7 +111,7 @@ public class User extends Shiina {
 
         }
 
-        UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + id), UserInfoObject.class);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(id);
 
         UserStatusQuery userStatusQuery = new UserStatusQuery();
         UserStatus userStatus = userStatusQuery.getUserStatus(id);

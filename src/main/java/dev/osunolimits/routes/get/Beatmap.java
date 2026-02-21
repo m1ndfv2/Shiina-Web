@@ -9,6 +9,7 @@ import com.google.gson.Gson;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.FullBeatmap;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.XmlConfig;
@@ -220,8 +221,7 @@ public class Beatmap extends Shiina {
             score.setUserId(scoreQuery.getInt("userid"));
             score.setName(scoreQuery.getString("name"));
             score.setCountry(scoreQuery.getString("country"));
-            UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + score.getUserId()),
-                    UserInfoObject.class);
+            UserInfoObject userInfo = UserInfoCache.getUserInfo(score.getUserId());
 
             if(PermissionHelper.hasPrivileges(userInfo.priv, PermissionHelper.Privileges.SUPPORTER)) {
                 userInfo.groups.add(ShiinaSupporterBadge.getInstance().getGroup());

@@ -6,6 +6,7 @@ import com.google.gson.Gson;
 
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -49,7 +50,7 @@ public class ProcessManageGroup extends Shiina {
             for(Group g : groups) {
                 if(g.id == Integer.parseInt(req.queryParams("id"))) {
                     for (Integer uid : g.getUserIds()) {
-                    UserInfoObject userInfo = gson.fromJson(App.appCache.get("shiina:user:" + uid), UserInfoObject.class);
+                    UserInfoObject userInfo = UserInfoCache.getUserInfo(uid);
                     for (dev.osunolimits.models.Group gr : userInfo.groups) {
                         if(g.id == gr.id) {
                             gr.emoji = emoji;

@@ -8,6 +8,7 @@ import dev.osunolimits.common.Database;
 import dev.osunolimits.common.MySQL;
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.cron.engine.RunnableCronTask;
 import dev.osunolimits.utils.osu.PermissionHelper;
 import dev.osunolimits.utils.osu.PermissionHelper.Privileges;
@@ -34,11 +35,7 @@ public class DonatorCleanUpTask extends RunnableCronTask {
                     int id = rs.getInt("id");
                     long currentTime = System.currentTimeMillis() / 1000L;
                     
-                    String cachedUser = App.appCache.get("shiina:user:" + id);
-                    UserInfoObject userInfo = null;
-                    if (cachedUser != null) {
-                        userInfo = gson.fromJson(cachedUser, UserInfoObject.class);
-                    }
+                    UserInfoObject userInfo = UserInfoCache.getUserInfo(id);
 
                     boolean shouldHaveSupporter = donorEnd > currentTime;
                     boolean hasSupporterInDb = PermissionHelper.hasPrivileges(priv, Privileges.SUPPORTER);
