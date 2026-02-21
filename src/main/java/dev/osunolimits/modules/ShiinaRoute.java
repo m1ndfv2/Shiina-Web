@@ -1,6 +1,7 @@
 package dev.osunolimits.modules;
 
 import java.util.HashMap;
+import java.sql.ResultSet;
 
 import com.google.gson.Gson;
 
@@ -58,6 +59,26 @@ public class ShiinaRoute {
                 request.user = referenceUser;
                 request.data.put("user", referenceUser);
                 request.data.put("userPriv", PermissionHelper.Privileges.fromInt(referenceUser.priv));
+                ResultSet userRs = request.mysql.Query(
+                    "SELECT `id`, `name`, `safe_name`, `priv` FROM `users` WHERE `id` = ?",
+                    user.id
+                );
+
+                if (userRs != null && userRs.next()) {
+                    referenceUser.id = userRs.getInt("id");
+                    referenceUser.name = userRs.getString("name");
+                    referenceUser.priv = userRs.getInt("priv");
+                    referenceUser.safe_name = userRs.getString("safe_name");
+                } else {
+                    referenceUser = null;
+                }
+
+                if (referenceUser != null) {
+                    request.loggedIn = true;
+                    request.user = referenceUser;
+                    request.data.put("user", referenceUser);
+                    request.data.put("userPriv", PermissionHelper.Privileges.fromInt(referenceUser.priv));
+                }
             }
         }
         request.data.put("currentTheme", ThemeLoader.currentTheme);
