@@ -1,9 +1,8 @@
 package dev.osunolimits.routes.get;
 
-import com.google.gson.Gson;
-
 import dev.osunolimits.main.App;
 import dev.osunolimits.models.UserInfoObject;
+import dev.osunolimits.modules.utils.UserInfoCache;
 import dev.osunolimits.modules.Shiina;
 import dev.osunolimits.modules.ShiinaRoute;
 import dev.osunolimits.modules.ShiinaRoute.ShiinaRequest;
@@ -18,7 +17,10 @@ public class Bot extends Shiina {
         ShiinaRequest shiina = new ShiinaRoute().handle(req, res);
         shiina.data.put("actNav", 0);
 
-        UserInfoObject userInfo = new Gson().fromJson(App.appCache.get("shiina:user:" + 1), UserInfoObject.class);
+        UserInfoObject userInfo = UserInfoCache.getUserInfo(1);
+        if (userInfo == null) {
+            return notFound(res, shiina);
+        }
 
         shiina.data.put("u", userInfo);
         SEOBuilder seo = new SEOBuilder("Profile of " + userInfo.getName(), App.customization.get("homeDescription").toString(), App.env.get("AVATARSRV") + "/" + "1");
