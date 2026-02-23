@@ -1,0 +1,75 @@
+<#include "assets/base.html">
+<div class="container supporter-keys-page" data-supporter-keys-page="user" data-locale="${locale!"en"}" data-redeem-endpoint="/api/v1/supporter-keys/redeem">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8">
+            <section class="card bg-secondary border-0 shadow-sm mb-4">
+                <div class="card-body p-4 p-md-5">
+                    <h1 class="h3 mb-2">Supporter key activation</h1>
+                    <p class="text-body-secondary mb-4">Enter your supporter key to activate your perks instantly.</p>
+
+                    <form id="supporterRedeemForm" class="needs-validation" novalidate aria-describedby="supporterRedeemHelp">
+                        <div class="mb-3">
+                            <label for="supporterKeyInput" class="form-label fw-semibold">Supporter key</label>
+                            <div class="input-group">
+                                <input
+                                    id="supporterKeyInput"
+                                    name="code"
+                                    class="form-control"
+                                    type="text"
+                                    autocomplete="off"
+                                    inputmode="text"
+                                    maxlength="26"
+                                    placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX"
+                                    aria-describedby="supporterRedeemHelp"
+                                    required>
+                                <button class="btn btn-outline-primary" id="pasteSupporterKeyButton" type="button" aria-label="Paste key from clipboard">Paste from clipboard</button>
+                            </div>
+                            <div id="supporterRedeemHelp" class="form-text">Format: 3 blocks by 8 chars, example: ABCD1234-EFGH5678-IJKL9012.</div>
+                            <div class="invalid-feedback" id="supporterKeyInvalidFeedback">Please enter a valid key format.</div>
+                        </div>
+
+                        <div id="supporterRedeemAlert" class="alert d-none" role="status" aria-live="polite"></div>
+
+                        <button class="btn btn-primary" id="supporterRedeemSubmit" type="submit">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" id="supporterRedeemSpinner" aria-hidden="true"></span>
+                            <span id="supporterRedeemSubmitText">Activate key</span>
+                        </button>
+                    </form>
+                </div>
+            </section>
+
+            <section class="card bg-secondary border-0 shadow-sm">
+                <div class="card-body p-4 p-md-5">
+                    <h2 class="h5">FAQ</h2>
+                    <div class="accordion" id="supporterKeysFaq">
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqLoginHeading">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faqLogin" aria-expanded="true" aria-controls="faqLogin">Do I need to be logged in?</button>
+                            </h3>
+                            <div id="faqLogin" class="accordion-collapse collapse show" aria-labelledby="faqLoginHeading" data-bs-parent="#supporterKeysFaq">
+                                <div class="accordion-body">Yes. You must be authorized on your account before redeeming a key.</div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqCaseHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqCase" aria-expanded="false" aria-controls="faqCase">Does uppercase/lowercase matter?</button>
+                            </h3>
+                            <div id="faqCase" class="accordion-collapse collapse" aria-labelledby="faqCaseHeading" data-bs-parent="#supporterKeysFaq">
+                                <div class="accordion-body">No. Keys are normalized automatically to uppercase.</div>
+                            </div>
+                        </div>
+                        <div class="accordion-item">
+                            <h3 class="accordion-header" id="faqAfterHeading">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faqAfter" aria-expanded="false" aria-controls="faqAfter">What happens after activation?</button>
+                            </h3>
+                            <div id="faqAfter" class="accordion-collapse collapse" aria-labelledby="faqAfterHeading" data-bs-parent="#supporterKeysFaq">
+                                <div class="accordion-body">If valid and unused, the supporter status is applied instantly and the expiration date is returned in the success message.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+<#include "assets/footer.html">

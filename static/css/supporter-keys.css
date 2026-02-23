@@ -1,0 +1,37 @@
+.supporter-keys-page {
+    padding-bottom: 2rem;
+}
+
+.supporter-keys-page .card {
+    border-radius: 1rem;
+}
+
+.supporter-keys-page .accordion-button,
+.supporter-keys-page .accordion-body {
+    background: transparent;
+}
+
+.supporter-keys-page .supporter-keys-table th {
+    white-space: nowrap;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+.supporter-keys-page .supporter-keys-table td {
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+@media (max-width: 991.98px) {
+    .supporter-keys-page .btn-group {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+        gap: 0.5rem;
+    }
+
+    .supporter-keys-page .btn-group > .btn {
+        border-radius: 0.5rem !important;
+    }
+}
