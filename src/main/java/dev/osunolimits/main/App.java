@@ -107,6 +107,8 @@ import dev.osunolimits.routes.get.settings.Customization;
 import dev.osunolimits.routes.get.settings.Data;
 import dev.osunolimits.routes.get.settings.Settings;
 import dev.osunolimits.routes.get.simple.Recover;
+import dev.osunolimits.routes.get.supporter.AdminSupporterKeys;
+import dev.osunolimits.routes.get.supporter.SupporterKeys;
 import dev.osunolimits.routes.get.user.Relations;
 import dev.osunolimits.routes.post.HandleComment;
 import dev.osunolimits.routes.post.HandleLogin;
@@ -227,6 +229,8 @@ public class App {
         WebServer.get("/settings/data", new Data());
 
         WebServer.get("/friends", new Relations());
+        WebServer.get("/supporter-keys", new SupporterKeys());
+        WebServer.get("/admin/supporter-keys", new AdminSupporterKeys());
         WebServer.post("/settings/auth/sessions/delete", new HandleTokenDeletion());
         WebServer.post("/settings/gfx/delete", new HandleGfxDeletion());
         WebServer.post("/settings/data/export", new HandleDataRequest());

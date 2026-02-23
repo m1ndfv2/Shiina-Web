@@ -59,3 +59,8 @@
         var avatarServer = '${avatarServer}';
 
 </script>
+<#if pageScripts??>
+<#list pageScripts as script>
+<script src="${script}" defer></script>
+</#list>
+</#if>

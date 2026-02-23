@@ -1,0 +1,112 @@
+<#include "assets/base.html">
+<div class="container supporter-keys-page" data-supporter-keys-page="admin" data-locale="${locale!"en"}" data-generate-endpoint="/api/v1/admin/supporter-keys/generate" data-list-endpoint="/api/v1/admin/supporter-keys" data-export-endpoint="/api/v1/admin/supporter-keys/last-batch">
+    <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-2 mb-3">
+        <div>
+            <h1 class="h3 mb-1">Supporter keys management</h1>
+            <p class="text-body-secondary mb-0">Generate keys, review status, and export latest batches.</p>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-5">
+            <section class="card bg-secondary border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Generate new keys</h2>
+                    <form id="supporterGenerateForm" class="needs-validation" novalidate>
+                        <div class="mb-3">
+                            <label for="supporterAmount" class="form-label fw-semibold">Amount</label>
+                            <input type="number" id="supporterAmount" class="form-control" min="1" max="1000" step="1" value="10" required>
+                            <div class="invalid-feedback">Enter amount between 1 and 1000.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="supporterDurationDays" class="form-label fw-semibold">Duration (days)</label>
+                            <input type="number" id="supporterDurationDays" class="form-control" min="1" max="3650" step="1" value="30" required>
+                            <div class="invalid-feedback">Enter duration between 1 and 3650 days.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="supporterNote" class="form-label fw-semibold">Note (optional)</label>
+                            <textarea id="supporterNote" class="form-control" rows="3" maxlength="255" placeholder="e.g. Winter giveaway"></textarea>
+                        </div>
+                        <div id="supporterGenerateAlert" class="alert d-none" role="status" aria-live="polite"></div>
+                        <button class="btn btn-primary" type="submit" id="supporterGenerateSubmit">
+                            <span class="spinner-border spinner-border-sm me-2 d-none" id="supporterGenerateSpinner" aria-hidden="true"></span>
+                            <span id="supporterGenerateSubmitText">Generate</span>
+                        </button>
+                    </form>
+
+                    <hr class="my-4">
+
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h3 class="h6 mb-0">Last generated batch</h3>
+                        <div class="btn-group btn-group-sm" role="group" aria-label="Batch export actions">
+                            <button class="btn btn-outline-primary" type="button" id="copyAllKeysButton">Copy all</button>
+                            <a class="btn btn-outline-primary" id="downloadBatchCsvButton" href="/api/v1/admin/supporter-keys/last-batch?format=csv">Download CSV</a>
+                            <a class="btn btn-outline-primary" id="downloadBatchTxtButton" href="/api/v1/admin/supporter-keys/last-batch?format=txt">Download TXT</a>
+                        </div>
+                    </div>
+                    <textarea id="supporterBatchOutput" class="form-control font-monospace" rows="8" readonly aria-label="Generated keys output"></textarea>
+                </div>
+            </section>
+        </div>
+
+        <div class="col-12 col-xl-7">
+            <section class="card bg-secondary border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-3">Keys list</h2>
+                    <form id="supporterTableFilters" class="row g-2 align-items-end mb-3" aria-label="Supporter keys filters">
+                        <div class="col-12 col-md-4">
+                            <label for="supporterSearch" class="form-label">Search</label>
+                            <input id="supporterSearch" class="form-control" type="search" placeholder="Code / user / note">
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label for="supporterStatusFilter" class="form-label">Status</label>
+                            <select id="supporterStatusFilter" class="form-select">
+                                <option value="">All</option>
+                                <option value="unused">UNUSED</option>
+                                <option value="used">USED</option>
+                            </select>
+                        </div>
+                        <div class="col-6 col-md-3">
+                            <label for="supporterSort" class="form-label">Sort</label>
+                            <select id="supporterSort" class="form-select">
+                                <option value="created_at:desc">Newest first</option>
+                                <option value="created_at:asc">Oldest first</option>
+                                <option value="used_at:desc">Recently used</option>
+                                <option value="duration:desc">Longest duration</option>
+                            </select>
+                        </div>
+                        <div class="col-12 col-md-2 d-grid">
+                            <button type="submit" class="btn btn-outline-primary">Apply</button>
+                        </div>
+                    </form>
+
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle supporter-keys-table mb-3">
+                            <thead>
+                                <tr>
+                                    <th scope="col">code</th>
+                                    <th scope="col">duration</th>
+                                    <th scope="col">created_by</th>
+                                    <th scope="col">created_at</th>
+                                    <th scope="col">used_by</th>
+                                    <th scope="col">used_at</th>
+                                    <th scope="col">status</th>
+                                </tr>
+                            </thead>
+                            <tbody id="supporterKeysTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <div id="supporterTableAlert" class="alert d-none" role="status" aria-live="polite"></div>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <button class="btn btn-outline-primary btn-sm" id="supporterPrevPage" type="button">Previous</button>
+                        <span id="supporterPaginationInfo" class="small text-body-secondary">Page 1</span>
+                        <button class="btn btn-outline-primary btn-sm" id="supporterNextPage" type="button">Next</button>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+<#include "assets/footer.html">

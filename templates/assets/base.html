@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="/css/shiina.css">
     <link rel="stylesheet" href="/css/select2.min.css" />
     <link rel="stylesheet" href="/css/wbbtheme.css" />
+    <#if pageStyles??>
+    <#list pageStyles as style>
+    <link rel="stylesheet" href="${style}">
+    </#list>
+    </#if>
 
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onloadTurnstileCallback"></script>
     <script src="/js/jquery.min.js"></script>
